@@ -167,7 +167,7 @@ get_latest_release_tag() {
         fi
     done
 
-    echo "v2.2.156"
+    echo "v2.2.157"
 }
 
 # Detect active working directory if already installed
