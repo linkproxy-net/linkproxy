@@ -26,7 +26,7 @@
   </p>
 
   <p>
-    <a href="https://github.com/LinkProxy-Core/linkproxy/releases/latest"><img src="https://img.shields.io/badge/Release-v2.2.155-blue.svg?style=flat-square" alt="Version"></a>
+    <a href="https://github.com/LinkProxy-Core/linkproxy/releases/latest"><img src="https://img.shields.io/badge/Release-v2.2.156-blue.svg?style=flat-square" alt="Version"></a>
     <a href="https://linkproxy-core.github.io/linkproxy/"><img src="https://img.shields.io/badge/Docs-%E5%AE%98%E6%96%B9%E5%9C%A8%E7%BA%BF%E6%89%8B%E5%86%8C-brightgreen.svg?style=flat-square" alt="Docs"></a>
     <img src="https://img.shields.io/badge/Protocol-Stratum%20%7C%20EthProxy-success.svg?style=flat-square" alt="Protocol">
     <img src="https://img.shields.io/badge/Platform-Linux%20%7C%20Windows-lightgrey.svg?style=flat-square" alt="Platform">
@@ -89,6 +89,12 @@ LinkProxy 针对 BTC、LTC、Kaspa、ETC、PRL、QTC 等主流 ASIC 算力芯片
 
 ### 1. Linux 一键安装（推荐，支持 Ubuntu / Debian / CentOS / Rocky）
 
+**国内服务器加速安装（自动探测最优节点）：**
+```bash
+curl -fsSL https://ghfast.top/https://github.com/LinkProxy-Core/linkproxy/releases/latest/download/install.sh | sudo bash
+```
+
+**海外服务器 / 官方直连：**
 ```bash
 curl -fsSL https://github.com/LinkProxy-Core/linkproxy/releases/latest/download/install.sh | sudo bash
 ```

@@ -8,25 +8,167 @@ WORK_DIR="/root/linkproxy"
 SERVICE_NAME="linkproxy"
 BINARY_NAME="linkproxy-linux-amd64"
 GITHUB_REPO="LinkProxy-Core/linkproxy"
+RAW_LATEST_URL="https://github.com/${GITHUB_REPO}/releases/latest"
+RAW_INSTALL_SH_URL="https://github.com/${GITHUB_REPO}/releases/latest/download/install.sh"
 DOWNLOAD_URL="https://github.com/${GITHUB_REPO}/releases/latest/download/linkproxy-linux-amd64.tar.gz"
-SCRIPT_VERSION="6.2.2"
+SCRIPT_VERSION="6.3.0"
 
-# 动态探测 GitHub 最新 Release 标签，毫秒级 302 重定向解析，免除每次推送手动维护
+ROUTE_CONF_FILE="/etc/default/linkproxy_route"
+CUSTOM_MIRROR="${LINKPROXY_MIRROR:-}"
+ROUTE_MODE="auto"
+ACTIVE_MIRROR_PREFIX=""
+ACTIVE_ROUTE_NAME="自动测速 (Auto)"
+MIRROR_PREFIXES=(
+    "https://ghfast.top/"
+    "https://gh-proxy.com/"
+    "https://ghproxy.net/"
+)
+
+load_route_config() {
+    if [ -f "$ROUTE_CONF_FILE" ]; then
+        local saved_mode=""
+        local saved_custom=""
+        saved_mode=$(grep -E '^ROUTE_MODE=' "$ROUTE_CONF_FILE" 2>/dev/null | head -n1 | cut -d'=' -f2- | tr -d '\r\n"')
+        saved_custom=$(grep -E '^CUSTOM_MIRROR=' "$ROUTE_CONF_FILE" 2>/dev/null | head -n1 | cut -d'=' -f2- | tr -d '\r\n"')
+        [ -n "$saved_mode" ] && ROUTE_MODE="$saved_mode"
+        [ -z "$CUSTOM_MIRROR" ] && [ -n "$saved_custom" ] && CUSTOM_MIRROR="$saved_custom"
+    fi
+    CUSTOM_MIRROR="${CUSTOM_MIRROR%/}"
+}
+
+save_route_config() {
+    mkdir -p /etc/default 2>/dev/null || true
+    cat > "$ROUTE_CONF_FILE" << EOF
+ROUTE_MODE=$ROUTE_MODE
+CUSTOM_MIRROR=$CUSTOM_MIRROR
+EOF
+}
+
+probe_url_fast() {
+    local target="$1"
+    if command -v curl >/dev/null 2>&1; then
+        curl -fsSIL -o /dev/null --connect-timeout 2 --max-time 3 "$target" >/dev/null 2>&1
+        return $?
+    elif command -v wget >/dev/null 2>&1; then
+        wget -q --spider --timeout=2 --tries=1 "$target" >/dev/null 2>&1
+        return $?
+    fi
+    return 1
+}
+
+probe_fastest_route() {
+    load_route_config
+
+    case "$ROUTE_MODE" in
+        custom)
+            if [ -n "$CUSTOM_MIRROR" ]; then
+                ACTIVE_MIRROR_PREFIX="custom"
+                ACTIVE_ROUTE_NAME="自建高速源 (${CUSTOM_MIRROR})"
+                return 0
+            fi
+            ;;
+        direct)
+            ACTIVE_MIRROR_PREFIX=""
+            ACTIVE_ROUTE_NAME="GitHub 官方直连"
+            return 0
+            ;;
+        ghfast)
+            ACTIVE_MIRROR_PREFIX="https://ghfast.top/"
+            ACTIVE_ROUTE_NAME="国内加速 (ghfast.top)"
+            return 0
+            ;;
+        gh-proxy)
+            ACTIVE_MIRROR_PREFIX="https://gh-proxy.com/"
+            ACTIVE_ROUTE_NAME="国内加速 (gh-proxy.com)"
+            return 0
+            ;;
+        ghproxy)
+            ACTIVE_MIRROR_PREFIX="https://ghproxy.net/"
+            ACTIVE_ROUTE_NAME="国内加速 (ghproxy.net)"
+            return 0
+            ;;
+    esac
+
+    local tmp_dir
+    tmp_dir=$(mktemp -d 2>/dev/null || echo "/tmp/lp_probe_$$")
+    mkdir -p "$tmp_dir"
+
+    if [ -n "$CUSTOM_MIRROR" ]; then
+        ( probe_url_fast "${CUSTOM_MIRROR}/install.sh" && echo "ok" > "$tmp_dir/custom" ) &
+    fi
+    local idx=0
+    for prefix in "${MIRROR_PREFIXES[@]}"; do
+        ( probe_url_fast "${prefix}${RAW_LATEST_URL}" && echo "$prefix" > "$tmp_dir/mirror_${idx}" ) &
+        idx=$((idx + 1))
+    done
+    ( probe_url_fast "$RAW_LATEST_URL" && echo "ok" > "$tmp_dir/direct" ) &
+
+    wait
+
+    if [ -f "$tmp_dir/custom" ]; then
+        ACTIVE_MIRROR_PREFIX="custom"
+        ACTIVE_ROUTE_NAME="自建高速源 (${CUSTOM_MIRROR})"
+    elif [ -f "$tmp_dir/mirror_0" ]; then
+        ACTIVE_MIRROR_PREFIX="https://ghfast.top/"
+        ACTIVE_ROUTE_NAME="国内加速 (ghfast.top)"
+    elif [ -f "$tmp_dir/mirror_1" ]; then
+        ACTIVE_MIRROR_PREFIX="https://gh-proxy.com/"
+        ACTIVE_ROUTE_NAME="国内加速 (gh-proxy.com)"
+    elif [ -f "$tmp_dir/mirror_2" ]; then
+        ACTIVE_MIRROR_PREFIX="https://ghproxy.net/"
+        ACTIVE_ROUTE_NAME="国内加速 (ghproxy.net)"
+    elif [ -f "$tmp_dir/direct" ]; then
+        ACTIVE_MIRROR_PREFIX=""
+        ACTIVE_ROUTE_NAME="GitHub 官方直连"
+    else
+        ACTIVE_MIRROR_PREFIX="https://ghfast.top/"
+        ACTIVE_ROUTE_NAME="国内加速回退 (ghfast.top)"
+    fi
+
+    rm -rf "$tmp_dir" 2>/dev/null
+}
+
+# 动态探测最新 Release 标签：优先自建高速源 latest.json，其次并发竞速命中的加速线路，最后回退直连
 get_latest_release_tag() {
     local tag=""
-    if command -v curl >/dev/null 2>&1; then
-        tag=$(curl -sI "https://github.com/${GITHUB_REPO}/releases/latest" 2>/dev/null | grep -i '^location:' | sed 's/.*tag\///' | tr -d '\r\n')
+    if [ -n "$CUSTOM_MIRROR" ] && command -v curl >/dev/null 2>&1; then
+        local json_body
+        json_body=$(curl -fsSL --connect-timeout 2 --max-time 3 "${CUSTOM_MIRROR}/latest.json" 2>/dev/null)
+        if [ -n "$json_body" ]; then
+            tag=$(echo "$json_body" | sed -n 's/.*"tag_name"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -n1)
+            [ -z "$tag" ] && tag=$(echo "$json_body" | sed -n 's/.*"version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -n1)
+            if [[ "$tag" =~ ^v[0-9]+\.[0-9]+ ]]; then
+                echo "$tag"
+                return
+            fi
+        fi
     fi
-    if [ -z "$tag" ] && command -v wget >/dev/null 2>&1; then
-        tag=$(wget -q -S --spider "https://github.com/${GITHUB_REPO}/releases/latest" 2>&1 | grep -i 'Location:' | sed 's/.*tag\///' | tr -d '\r\n')
+
+    local candidates=()
+    if [ -n "$ACTIVE_MIRROR_PREFIX" ] && [ "$ACTIVE_MIRROR_PREFIX" != "custom" ]; then
+        candidates+=("${ACTIVE_MIRROR_PREFIX}${RAW_LATEST_URL}")
     fi
-    if [[ "$tag" =~ ^v[0-9]+\.[0-9]+ ]]; then
-        echo "$tag"
-    else
-        echo "v2.2.149"
-    fi
+    for prefix in "${MIRROR_PREFIXES[@]}"; do
+        [ "${prefix}" = "${ACTIVE_MIRROR_PREFIX}" ] && continue
+        candidates+=("${prefix}${RAW_LATEST_URL}")
+    done
+    candidates+=("${RAW_LATEST_URL}")
+
+    for u in "${candidates[@]}"; do
+        if command -v curl >/dev/null 2>&1; then
+            tag=$(curl -sI --connect-timeout 2 --max-time 4 "$u" 2>/dev/null | grep -i '^location:' | sed 's/.*tag\///' | tr -d '\r\n' | cut -d'?' -f1)
+        fi
+        if [ -z "$tag" ] && command -v wget >/dev/null 2>&1; then
+            tag=$(wget -q -S --spider --timeout=3 --tries=1 "$u" 2>&1 | grep -i 'Location:' | sed 's/.*tag\///' | tr -d '\r\n' | cut -d'?' -f1)
+        fi
+        if [[ "$tag" =~ ^v[0-9]+\.[0-9]+ ]]; then
+            echo "$tag"
+            return
+        fi
+    done
+
+    echo "v2.2.156"
 }
-SOFTWARE_VERSION="$(get_latest_release_tag)"
 
 # Detect active working directory if already installed
 LEGACY_DIR=""
@@ -69,17 +211,90 @@ check_root() {
 
 check_root
 
+validate_downloaded_file() {
+    local file_path="$1"
+    local raw_url="$2"
+    [ -s "$file_path" ] || return 1
+    case "$raw_url" in
+        *.tar.gz|*.tgz)
+            tar -ztf "$file_path" >/dev/null 2>&1
+            return $?
+            ;;
+        *.sh)
+            grep -q "LinkProxy" "$file_path" 2>/dev/null && ! head -n 1 "$file_path" 2>/dev/null | grep -qiE '^\s*<'
+            return $?
+            ;;
+        *)
+            return 0
+            ;;
+    esac
+}
+
+download_with_fallback() {
+    local out_file="$1"
+    local raw_url="$2"
+    local asset_name
+    asset_name=$(basename -- "$raw_url")
+
+    local urls=()
+    if [ -n "$CUSTOM_MIRROR" ]; then
+        urls+=("${CUSTOM_MIRROR}/${asset_name}")
+    fi
+
+    if [ -n "$ACTIVE_MIRROR_PREFIX" ] && [ "$ACTIVE_MIRROR_PREFIX" != "custom" ]; then
+        urls+=("${ACTIVE_MIRROR_PREFIX}${raw_url}")
+    elif [ "$ROUTE_MODE" = "direct" ] || [ "$ACTIVE_MIRROR_PREFIX" = "" ]; then
+        urls+=("${raw_url}")
+    fi
+
+    for prefix in "${MIRROR_PREFIXES[@]}"; do
+        [ "${prefix}" = "${ACTIVE_MIRROR_PREFIX}" ] && continue
+        urls+=("${prefix}${raw_url}")
+    done
+
+    if [ "$ROUTE_MODE" != "direct" ] && [ -n "$ACTIVE_MIRROR_PREFIX" ]; then
+        urls+=("${raw_url}")
+    fi
+
+    for u in "${urls[@]}"; do
+        rm -f "$out_file"
+        if command -v curl >/dev/null 2>&1; then
+            if curl -fsSL --connect-timeout 3 --max-time 60 -o "$out_file" "$u" 2>/dev/null && validate_downloaded_file "$out_file" "$raw_url"; then
+                return 0
+            fi
+        fi
+        rm -f "$out_file"
+        if command -v wget >/dev/null 2>&1; then
+            if wget -q --timeout=8 --tries=1 -O "$out_file" "$u" 2>/dev/null && validate_downloaded_file "$out_file" "$raw_url"; then
+                return 0
+            fi
+        fi
+    done
+    rm -f "$out_file"
+    return 1
+}
+
+probe_fastest_route
+SOFTWARE_VERSION="$(get_latest_release_tag)"
+
 # Setup convenient shortcut 'minerlink'
 setup_shortcut() {
     if [ ! -f "/usr/local/bin/linkproxy" ] || [ "$0" != "/usr/local/bin/linkproxy" ]; then
         if [ -f "$0" ] && [ "$(basename -- "$0")" = "install.sh" ]; then
             cp -f "$0" /usr/local/bin/linkproxy 2>/dev/null && chmod +x /usr/local/bin/linkproxy 2>/dev/null
         else
-            curl -fsSL "https://github.com/${GITHUB_REPO}/releases/latest/download/install.sh" -o /usr/local/bin/linkproxy 2>/dev/null && chmod +x /usr/local/bin/linkproxy 2>/dev/null
+            local tmp_sc="/tmp/.linkproxy_install_$$.sh"
+            if download_with_fallback "$tmp_sc" "$RAW_INSTALL_SH_URL"; then
+                mv -f "$tmp_sc" /usr/local/bin/linkproxy 2>/dev/null && chmod +x /usr/local/bin/linkproxy 2>/dev/null
+            else
+                rm -f "$tmp_sc"
+            fi
         fi
-        ln -sf /usr/local/bin/linkproxy /usr/bin/linkproxy 2>/dev/null
-        ln -sf /usr/local/bin/linkproxy /usr/local/bin/minerlink 2>/dev/null
-        ln -sf /usr/local/bin/linkproxy /usr/bin/minerlink 2>/dev/null
+        if [ -f "/usr/local/bin/linkproxy" ]; then
+            ln -sf /usr/local/bin/linkproxy /usr/bin/linkproxy 2>/dev/null
+            ln -sf /usr/local/bin/linkproxy /usr/local/bin/minerlink 2>/dev/null
+            ln -sf /usr/local/bin/linkproxy /usr/bin/minerlink 2>/dev/null
+        fi
     fi
 }
 setup_shortcut
@@ -163,7 +378,7 @@ show_menu() {
     if [ "$ML_LANG" = "en" ]; then
         echo -e "${YELLOW}Notice: If you previously installed other proxy software, please completely remove them to avoid port conflicts and hashrate impact.${NC}"
         echo -e "Script Management Interface ready (Recommended: Debian / Ubuntu / CentOS)"
-        echo -e "Route: ${CYAN}Default${NC}"
+        echo -e "Route: ${CYAN}${ACTIVE_ROUTE_NAME}${NC}"
         echo -e "Script Version: ${CYAN}${SCRIPT_VERSION}${NC}"
         echo -e "Software Version: ${CYAN}$(get_software_version)${NC}"
         echo -e "Linux Max Connections automatically optimized to 1,048,576"
@@ -182,12 +397,13 @@ show_menu() {
         echo -e "${CYAN}9.${NC} View or Reset Admin Password & Web Port"
         echo -e "${CYAN}10.${NC} View Running Status & Configuration"
         echo -e "${CYAN}11.${NC} Clear Logs & Cache"
+        echo -e "${CYAN}12.${NC} Switch Download Route (Auto / China Mirror / Direct / Custom)"
         echo ""
-        read_tty "Please enter choice [0-11]: " choice
+        read_tty "Please enter choice [0-12]: " choice
     else
         echo -e "${YELLOW}如果您之前安装其它代理软件，请彻底停止卸载，避免端口冲突与算力影响${NC}"
         echo -e "脚本管理界面安装完成 (推荐使用 Debian / Ubuntu / CentOS 系统)"
-        echo -e "线路：${CYAN}Default${NC}"
+        echo -e "线路：${CYAN}${ACTIVE_ROUTE_NAME}${NC}"
         echo -e "脚本版本：${CYAN}${SCRIPT_VERSION}${NC}"
         echo -e "软件版本：${CYAN}$(get_software_version)${NC}"
         echo -e "安装过程中已将 Linux 最大连接数默认修改为 1048576 (需服务器重启彻底生效)"
@@ -206,8 +422,9 @@ show_menu() {
         echo -e "${CYAN}9.${NC} 查看或重置管理员密码与管理端口"
         echo -e "${CYAN}10.${NC} 查看运行状态与配置"
         echo -e "${CYAN}11.${NC} 删除错误与运行日志"
+        echo -e "${CYAN}12.${NC} 切换下载线路 (自动测速 / 国内加速 / 官方直连 / 自定义加速源)"
         echo ""
-        read_tty "请输入选择 [0-11]: " choice
+        read_tty "请输入选择 [0-12]: " choice
     fi
 }
 
@@ -271,30 +488,6 @@ EOF
         sed -i 's/#DefaultLimitNOFILE=.*/DefaultLimitNOFILE=1048576/g' /etc/systemd/system.conf
         sed -i 's/DefaultLimitNOFILE=.*/DefaultLimitNOFILE=1048576/g' /etc/systemd/system.conf
     fi
-}
-
-download_with_fallback() {
-    local out_file="$1"
-    local raw_url="$2"
-    local urls=(
-        "$raw_url"
-        "https://ghfast.top/${raw_url}"
-        "https://gh-proxy.com/${raw_url}"
-        "https://ghproxy.net/${raw_url}"
-    )
-    for u in "${urls[@]}"; do
-        rm -f "$out_file"
-        if wget -q --timeout=20 --tries=1 -O "$out_file" "$u" && [ -s "$out_file" ]; then
-            return 0
-        fi
-        if command -v curl >/dev/null 2>&1; then
-            if curl -fsSL --connect-timeout 10 --max-time 90 -o "$out_file" "$u" && [ -s "$out_file" ]; then
-                return 0
-            fi
-        fi
-    done
-    rm -f "$out_file"
-    return 1
 }
 
 install_proxy() {
@@ -471,7 +664,12 @@ EOF
         rm -f linkproxy-linux-amd64-new.tar.gz
         systemctl start "$SERVICE_NAME" >/dev/null 2>&1
         # 同步更新快捷管理脚本自身
-        curl -fsSL "https://github.com/${GITHUB_REPO}/releases/latest/download/install.sh" -o /usr/local/bin/linkproxy 2>/dev/null && chmod +x /usr/local/bin/linkproxy 2>/dev/null
+        local tmp_sc="/tmp/.linkproxy_install_$$.sh"
+        if download_with_fallback "$tmp_sc" "$RAW_INSTALL_SH_URL"; then
+            mv -f "$tmp_sc" /usr/local/bin/linkproxy 2>/dev/null && chmod +x /usr/local/bin/linkproxy 2>/dev/null
+        else
+            rm -f "$tmp_sc"
+        fi
         ln -sf /usr/local/bin/linkproxy /usr/bin/linkproxy 2>/dev/null
         ln -sf /usr/local/bin/linkproxy /usr/local/bin/minerlink 2>/dev/null
         echo -e "${GREEN}✅ 更新成功，代理服务已平滑重启！${NC}"
@@ -904,6 +1102,78 @@ clean_logs() {
     pause
 }
 
+switch_route() {
+    clear
+    if [ "$ML_LANG" = "en" ]; then
+        echo -e "${BOLD}${CYAN}========== Switch Download Route ==========${NC}"
+        echo -e "Current Route: ${GREEN}${ACTIVE_ROUTE_NAME}${NC}"
+        echo -e "Custom Mirror: ${CYAN}${CUSTOM_MIRROR:-Not Set}${NC}"
+        echo ""
+        echo -e "  ${CYAN}1.${NC} Auto Probe Fastest (Recommended)"
+        echo -e "  ${CYAN}2.${NC} China Mirror - ghfast.top"
+        echo -e "  ${CYAN}3.${NC} China Mirror - gh-proxy.com"
+        echo -e "  ${CYAN}4.${NC} China Mirror - ghproxy.net"
+        echo -e "  ${CYAN}5.${NC} Official GitHub Direct"
+        echo -e "  ${CYAN}6.${NC} Set Custom Acceleration Mirror URL"
+        echo -e "  ${CYAN}0.${NC} Return to Main Menu"
+        echo ""
+        local r_choice
+        read_tty "Enter choice [0-6]: " r_choice
+        case "$r_choice" in
+            1) ROUTE_MODE="auto" ;;
+            2) ROUTE_MODE="ghfast" ;;
+            3) ROUTE_MODE="gh-proxy" ;;
+            4) ROUTE_MODE="ghproxy" ;;
+            5) ROUTE_MODE="direct" ;;
+            6)
+                read_tty "Enter custom mirror base URL (e.g. https://dl.example.com): " input_mirror
+                input_mirror="${input_mirror%/}"
+                if [ -n "$input_mirror" ]; then
+                    CUSTOM_MIRROR="$input_mirror"
+                    ROUTE_MODE="custom"
+                fi
+                ;;
+            0|*) return ;;
+        esac
+    else
+        echo -e "${BOLD}${CYAN}========== 切换下载与更新线路 ==========${NC}"
+        echo -e "当前生效线路: ${GREEN}${ACTIVE_ROUTE_NAME}${NC}"
+        echo -e "自建高速源:   ${CYAN}${CUSTOM_MIRROR:-未设置}${NC}"
+        echo ""
+        echo -e "  ${CYAN}1.${NC} 自动并发测速选优 (推荐)"
+        echo -e "  ${CYAN}2.${NC} 国内加速源 - ghfast.top"
+        echo -e "  ${CYAN}3.${NC} 国内加速源 - gh-proxy.com"
+        echo -e "  ${CYAN}4.${NC} 国内加速源 - ghproxy.net"
+        echo -e "  ${CYAN}5.${NC} GitHub 官方直连 (海外服务器推荐)"
+        echo -e "  ${CYAN}6.${NC} 配置自定义高速加速源 (如自有香港/国内 CDN 地址)"
+        echo -e "  ${CYAN}0.${NC} 返回主菜单"
+        echo ""
+        local r_choice
+        read_tty "请输入选择 [0-6]: " r_choice
+        case "$r_choice" in
+            1) ROUTE_MODE="auto" ;;
+            2) ROUTE_MODE="ghfast" ;;
+            3) ROUTE_MODE="gh-proxy" ;;
+            4) ROUTE_MODE="ghproxy" ;;
+            5) ROUTE_MODE="direct" ;;
+            6)
+                read_tty "请输入自定义加速源地址 (例如 https://dl.example.com 或 http://IP:端口): " input_mirror
+                input_mirror="${input_mirror%/}"
+                if [ -n "$input_mirror" ]; then
+                    CUSTOM_MIRROR="$input_mirror"
+                    ROUTE_MODE="custom"
+                fi
+                ;;
+            0|*) return ;;
+        esac
+    fi
+    save_route_config
+    probe_fastest_route
+    SOFTWARE_VERSION="$(get_latest_release_tag)"
+    echo -e "${GREEN}✅ 当前已切换至: ${ACTIVE_ROUTE_NAME}${NC}"
+    pause
+}
+
 # Main Loop
 select_language
 
@@ -947,8 +1217,11 @@ while true; do
         11)
             clean_logs
             ;;
+        12)
+            switch_route
+            ;;
         *)
-            echo -e "${RED}输入错误，请输入 0-11 之间的数字！${NC}"
+            echo -e "${RED}输入错误，请输入 0-12 之间的数字！${NC}"
             sleep 1
             ;;
     esac
