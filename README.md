@@ -1,5 +1,5 @@
 <div align="center">
-  <a href="https://github.com/LinkProxy-Core/linkproxy">
+  <a href="https://github.com/linkproxy-net/linkproxy">
     <img src="images/logo.png" alt="LinkProxy Logo" width="128" height="128" />
   </a>
 
@@ -18,16 +18,14 @@
     ·
     <a href="README_EN.md">English</a>
     ·
-    <a href="https://linkproxy-core.github.io/linkproxy/">在线手册 (中文)</a>
+    <a href="https://linkproxy-net.github.io/linkproxy/">在线手册 (中文)</a>
     ·
-    <a href="https://linkproxy-core.github.io/linkproxy/#/en/">Online Manual (EN)</a>
-    ·
-    <a href="https://linkproxy-core.github.io/gpu-overclock-database/">⚡ 显卡超频数据库</a>
+    <a href="https://linkproxy-net.github.io/linkproxy/#/en/">Online Manual (EN)</a>
   </p>
 
   <p>
-    <a href="https://github.com/LinkProxy-Core/linkproxy/releases/latest"><img src="https://img.shields.io/badge/Release-v2.2.156-blue.svg?style=flat-square" alt="Version"></a>
-    <a href="https://linkproxy-core.github.io/linkproxy/"><img src="https://img.shields.io/badge/Docs-%E5%AE%98%E6%96%B9%E5%9C%A8%E7%BA%BF%E6%89%8B%E5%86%8C-brightgreen.svg?style=flat-square" alt="Docs"></a>
+    <a href="https://github.com/linkproxy-net/linkproxy/releases/latest"><img src="https://img.shields.io/badge/Release-v2.2.156-blue.svg?style=flat-square" alt="Version"></a>
+    <a href="https://linkproxy-net.github.io/linkproxy/"><img src="https://img.shields.io/badge/Docs-%E5%AE%98%E6%96%B9%E5%9C%A8%E7%BA%BF%E6%89%8B%E5%86%8C-brightgreen.svg?style=flat-square" alt="Docs"></a>
     <img src="https://img.shields.io/badge/Protocol-Stratum%20%7C%20EthProxy-success.svg?style=flat-square" alt="Protocol">
     <img src="https://img.shields.io/badge/Platform-Linux%20%7C%20Windows-lightgrey.svg?style=flat-square" alt="Platform">
     <img src="https://img.shields.io/badge/License-MIT-orange.svg?style=flat-square" alt="License">
@@ -81,7 +79,7 @@ LinkProxy 针对 BTC、LTC、Kaspa、ETC、PRL、QTC 等主流 ASIC 算力芯片
 | **[04. 安全防护与生产加固](docs/04_security_defense.md)** | 防御加固与加密隧道 | 后台防爆破、IP 白名单、加密中转隧道、大客户免抽白名单 |
 | **[05. 故障排查手册 (FAQ)](docs/05_faq_troubleshooting.md)** | 常见问题自检与排查 | 连不上排查、拒绝率偏高分析、管理员密码重置 |
 
-> 📖 **官方在线完整手册**：[https://linkproxy-core.github.io/linkproxy/](https://linkproxy-core.github.io/linkproxy/)
+> 📖 **官方在线完整手册**：[https://linkproxy-net.github.io/linkproxy/](https://linkproxy-net.github.io/linkproxy/)
 
 ---
 
@@ -91,12 +89,12 @@ LinkProxy 针对 BTC、LTC、Kaspa、ETC、PRL、QTC 等主流 ASIC 算力芯片
 
 **国内服务器加速安装（自动探测最优节点）：**
 ```bash
-curl -fsSL https://ghfast.top/https://github.com/LinkProxy-Core/linkproxy/releases/latest/download/install.sh | sudo bash
+curl -fsSL https://ghfast.top/https://github.com/linkproxy-net/linkproxy/releases/latest/download/install.sh | sudo bash
 ```
 
 **海外服务器 / 官方直连：**
 ```bash
-curl -fsSL https://github.com/LinkProxy-Core/linkproxy/releases/latest/download/install.sh | sudo bash
+curl -fsSL https://github.com/linkproxy-net/linkproxy/releases/latest/download/install.sh | sudo bash
 ```
 
 安装完成后，在浏览器访问后台面板：
@@ -108,12 +106,12 @@ curl -fsSL https://github.com/LinkProxy-Core/linkproxy/releases/latest/download/
 ### 2. International English Installation (Unified Installer)
 
 ```bash
-curl -fsSL https://github.com/LinkProxy-Core/linkproxy/releases/latest/download/install.sh | sudo ML_LANG=en bash
+curl -fsSL https://github.com/linkproxy-net/linkproxy/releases/latest/download/install.sh | sudo ML_LANG=en bash
 ```
 
 ### 3. Windows 64 位运行
 
-前往 [Releases 页面](https://github.com/LinkProxy-Core/linkproxy/releases/latest) 下载 `linkproxy-windows-amd64.zip`：
+前往 [Releases 页面](https://github.com/linkproxy-net/linkproxy/releases/latest) 下载 `linkproxy-windows-amd64.zip`：
 1. 解压后双击 [windows/start.bat](windows/start.bat) 即可前台启动控制台。
 2. 生产环境建议右键管理员执行 [windows/install-service.bat](windows/install-service.bat)，一键注册为后台静默开机自启服务。
 
@@ -204,7 +202,6 @@ LinkProxy 针对国内外顶级矿池的 Stratum 协议方言、VarDiff 动态�
 
 ## 🛠️ 生态配套工具
 
-* 🌐 **[显卡挖矿超频参数速查面板 (GPU Overclock Database)](https://linkproxy-core.github.io/gpu-overclock-database/)**
   * **币种与型号速查**：汇集主流显卡与币种（PRL / QTC / RVN / ETC / IRON / XEL 等）最佳超频预设。
   * **多平台参数换算**：自动换算 Windows 小飞机 (Afterburner) 显存偏移量（防止驱动挂起），一键生成并复制内核 `--cclock / --mclock / --pl` 启动参数。
   * **自动同步更新**：后台定时同步各大热门新币与新型号显卡算力调优参数。
@@ -222,7 +219,7 @@ LinkProxy 针对国内外顶级矿池的 Stratum 协议方言、VarDiff 动态�
 ## 💬 交流与社区支持
 
 * **Telegram 官方交流群**：[点击加入 Telegram 群组](https://t.me/+fKG-u6OEDexlMDIx)
-* **官方在线手册**：[https://linkproxy-core.github.io/linkproxy/](https://linkproxy-core.github.io/linkproxy/)
+* **官方在线手册**：[https://linkproxy-net.github.io/linkproxy/](https://linkproxy-net.github.io/linkproxy/)
 
 * 点击链接加入群聊【珍珠币prl/kas/asic】：https://qm.qq.com/q/RXC3uypUs0
 <div align="center">

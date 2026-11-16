@@ -7,7 +7,7 @@
 ## 快速上手
 
 ### 1. 下载程序
-从 [GitHub Releases](https://github.com/LinkProxy-Core/linkproxy/releases/latest) 下载 `linkproxy-windows-amd64.zip`，并解压到任意目录（例如 `D:\LinkProxy`）。
+从 [GitHub Releases](https://github.com/linkproxy-net/linkproxy/releases/latest) 下载 `linkproxy-windows-amd64.zip`，并解压到任意目录（例如 `D:\LinkProxy`）。
 
 ### 2. 方式 A：前台窗口运行（调试推荐）
 双击运行 `start.bat`，程序将在控制台窗口中启动，并显示实时网络日志。

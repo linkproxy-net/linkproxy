@@ -14,7 +14,7 @@
 LinkProxy 仓库自带了一键调优脚本，自动备份原配置并写入最优参数：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/LinkProxy-Core/linkproxy/main/scripts/sysctl-tune.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/linkproxy-net/linkproxy/main/scripts/sysctl-tune.sh | sudo bash
 ```
 
 ---

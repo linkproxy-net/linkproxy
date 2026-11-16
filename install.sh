@@ -1,13 +1,13 @@
 #!/bin/bash
 # ==============================================================================
 # LinkProxy Management & Installation Script
-# GitHub: https://github.com/LinkProxy-Core/linkproxy
+# GitHub: https://github.com/linkproxy-net/linkproxy
 # ==============================================================================
 
 WORK_DIR="/root/linkproxy"
 SERVICE_NAME="linkproxy"
 BINARY_NAME="linkproxy-linux-amd64"
-GITHUB_REPO="LinkProxy-Core/linkproxy"
+GITHUB_REPO="linkproxy-net/linkproxy"
 RAW_LATEST_URL="https://github.com/${GITHUB_REPO}/releases/latest"
 RAW_INSTALL_SH_URL="https://github.com/${GITHUB_REPO}/releases/latest/download/install.sh"
 DOWNLOAD_URL="https://github.com/${GITHUB_REPO}/releases/latest/download/linkproxy-linux-amd64.tar.gz"
@@ -599,7 +599,7 @@ EOF
         echo -e "💬 Community Support:"
         echo -e "   • Telegram: ${CYAN}https://t.me/+fKG-u6OEDexlMDIx${NC}"
         echo -e "   • QQ Group:  ${CYAN}812127094${NC}"
-        echo -e "🌟 If it helps, please star us on GitHub: ${YELLOW}https://github.com/LinkProxy-Core/linkproxy${NC}"
+        echo -e "🌟 If it helps, please star us on GitHub: ${YELLOW}https://github.com/linkproxy-net/linkproxy${NC}"
     else
         echo -e "${GREEN}🎉 安装部署圆满完成！${NC}"
         echo -e "🚀 控制台访问地址: ${CYAN}http://${pub_ip}:${current_port}/ui/${NC}"
@@ -607,7 +607,7 @@ EOF
         echo -e "💬 交流与社区支持:"
         echo -e "   • Telegram 官方群: ${CYAN}https://t.me/+fKG-u6OEDexlMDIx${NC}"
         echo -e "   • 官方 QQ 交流群:  ${CYAN}812127094${NC}"
-        echo -e "🌟 如果对您有帮助，请前往 GitHub 给项目点个 Star 支持：${YELLOW}https://github.com/LinkProxy-Core/linkproxy${NC}"
+        echo -e "🌟 如果对您有帮助，请前往 GitHub 给项目点个 Star 支持：${YELLOW}https://github.com/linkproxy-net/linkproxy${NC}"
     fi
     echo -e "${BOLD}${GREEN}==============================================${NC}"
     pause

@@ -1,5 +1,5 @@
 <div align="center">
-  <a href="https://github.com/LinkProxy-Core/linkproxy">
+  <a href="https://github.com/linkproxy-net/linkproxy">
     <img src="images/logo.png" alt="LinkProxy Logo" width="128" height="128" />
   </a>
 
@@ -14,16 +14,14 @@
     ·
     <strong>English</strong>
     ·
-    <a href="https://linkproxy-core.github.io/linkproxy/">在线手册 (中文)</a>
+    <a href="https://linkproxy-net.github.io/linkproxy/">在线手册 (中文)</a>
     ·
-    <a href="https://linkproxy-core.github.io/linkproxy/#/en/">Online Manual (EN)</a>
-    ·
-    <a href="https://linkproxy-core.github.io/gpu-overclock-database/">⚡ GPU Overclock Database</a>
+    <a href="https://linkproxy-net.github.io/linkproxy/#/en/">Online Manual (EN)</a>
   </p>
 
   <p align="center">
-    <a href="https://github.com/LinkProxy-Core/linkproxy/releases/latest"><img src="https://img.shields.io/badge/Release-v2.2.156-blue.svg?style=flat-square" alt="Version"></a>
-    <a href="https://linkproxy-core.github.io/linkproxy/#/en/"><img src="https://img.shields.io/badge/Docs-Online%20Manual-brightgreen.svg?style=flat-square" alt="Docs"></a>
+    <a href="https://github.com/linkproxy-net/linkproxy/releases/latest"><img src="https://img.shields.io/badge/Release-v2.2.156-blue.svg?style=flat-square" alt="Version"></a>
+    <a href="https://linkproxy-net.github.io/linkproxy/#/en/"><img src="https://img.shields.io/badge/Docs-Online%20Manual-brightgreen.svg?style=flat-square" alt="Docs"></a>
     <img src="https://img.shields.io/badge/Protocol-Stratum%20%7C%20EthProxy-success.svg?style=flat-square" alt="Protocol">
     <img src="https://img.shields.io/badge/Platform-Linux%20%7C%20Windows-lightgrey.svg?style=flat-square" alt="Platform">
     <img src="https://img.shields.io/badge/License-MIT-orange.svg?style=flat-square" alt="License">
@@ -78,7 +76,7 @@ LinkProxy is an enterprise-grade PoW mining gateway engineered for large-scale m
 Run the following command to download, install, and register systemd auto-start service:
 
 ```bash
-curl -fsSL https://github.com/LinkProxy-Core/linkproxy/releases/latest/download/install.sh | sudo ML_LANG=en bash
+curl -fsSL https://github.com/linkproxy-net/linkproxy/releases/latest/download/install.sh | sudo ML_LANG=en bash
 ```
 
 After installation:
@@ -89,7 +87,7 @@ After installation:
 
 ### 2. Windows 64-bit
 
-1. Download `linkproxy-windows-amd64.zip` from [Releases](https://github.com/LinkProxy-Core/linkproxy/releases/latest).
+1. Download `linkproxy-windows-amd64.zip` from [Releases](https://github.com/linkproxy-net/linkproxy/releases/latest).
 2. Extract the archive (e.g. to `D:\LinkProxy`).
 3. Run `start.bat` for interactive console mode.
 4. For production background auto-start, right-click `install-service.bat` and select **Run as Administrator**.
@@ -99,19 +97,19 @@ After installation:
 
 ## Documentation Navigation
 
-Comprehensive guides are available at the **[LinkProxy Online Documentation Manual](https://linkproxy-core.github.io/linkproxy/#/en/)**:
+Comprehensive guides are available at the **[LinkProxy Online Documentation Manual](https://linkproxy-net.github.io/linkproxy/#/en/)**:
 
 | Topic | Guide Link | Key Content |
 | :--- | :--- | :--- |
-| **01. Quick Start** | [Installation Guide](https://linkproxy-core.github.io/linkproxy/#/en/01_quickstart) | Hardware specs, Linux & Windows deployment, default credentials |
-| **02. Topologies** | [Networking Schemes](https://linkproxy-core.github.io/linkproxy/#/en/02_architecture) | Local farm gateway vs cross-border encrypted tunnel |
-| **03. Ports & Protocols** | [Port Management](https://linkproxy-core.github.io/linkproxy/#/en/03_ports_and_pools) | Protocol modes (SSLMIX, ECCP256MIX), primary/backup pool failover |
-| **04. Fee Routing** | [Fee & PayList](https://linkproxy-core.github.io/linkproxy/#/en/04_fee_mining) | Multi-wallet percentage distribution, VIP zero-fee whitelist |
-| **05. Encrypted Tunnel** | [Tunnel Guide](https://linkproxy-core.github.io/linkproxy/#/en/05_encrypted_tunnel) | Single-binary client deployment, traffic compression, remote restart |
-| **06. Advanced VarDiff** | [Advanced Tuning](https://linkproxy-core.github.io/linkproxy/#/en/06_advanced_vardiff) | Starting difficulty, ViaBTC optimization, chip defense flags |
-| **07. Security & Logs** | [Security Defense](https://linkproxy-core.github.io/linkproxy/#/en/07_security_defense) | Fail2Ban brute-force lock, 2-minute damping, per-miner diagnostics |
-| **08. Supported Coins** | [Coin Matrix](https://linkproxy-core.github.io/linkproxy/#/en/08_coins_matrix) | 15+ coins setup, Antminer / Whatsminer / GPU rig config examples |
-| **09. Troubleshooting** | [FAQ & Troubleshooting](https://linkproxy-core.github.io/linkproxy/#/en/09_faq_troubleshooting) | Connectivity checks, reject rate diagnostics, password reset |
+| **01. Quick Start** | [Installation Guide](https://linkproxy-net.github.io/linkproxy/#/en/01_quickstart) | Hardware specs, Linux & Windows deployment, default credentials |
+| **02. Topologies** | [Networking Schemes](https://linkproxy-net.github.io/linkproxy/#/en/02_architecture) | Local farm gateway vs cross-border encrypted tunnel |
+| **03. Ports & Protocols** | [Port Management](https://linkproxy-net.github.io/linkproxy/#/en/03_ports_and_pools) | Protocol modes (SSLMIX, ECCP256MIX), primary/backup pool failover |
+| **04. Fee Routing** | [Fee & PayList](https://linkproxy-net.github.io/linkproxy/#/en/04_fee_mining) | Multi-wallet percentage distribution, VIP zero-fee whitelist |
+| **05. Encrypted Tunnel** | [Tunnel Guide](https://linkproxy-net.github.io/linkproxy/#/en/05_encrypted_tunnel) | Single-binary client deployment, traffic compression, remote restart |
+| **06. Advanced VarDiff** | [Advanced Tuning](https://linkproxy-net.github.io/linkproxy/#/en/06_advanced_vardiff) | Starting difficulty, ViaBTC optimization, chip defense flags |
+| **07. Security & Logs** | [Security Defense](https://linkproxy-net.github.io/linkproxy/#/en/07_security_defense) | Fail2Ban brute-force lock, 2-minute damping, per-miner diagnostics |
+| **08. Supported Coins** | [Coin Matrix](https://linkproxy-net.github.io/linkproxy/#/en/08_coins_matrix) | 15+ coins setup, Antminer / Whatsminer / GPU rig config examples |
+| **09. Troubleshooting** | [FAQ & Troubleshooting](https://linkproxy-net.github.io/linkproxy/#/en/09_faq_troubleshooting) | Connectivity checks, reject rate diagnostics, password reset |
 
 ---
 
@@ -180,7 +178,6 @@ LinkProxy is benchmarked and verified against top mining pools globally for zero
 
 ## 🛠️ Ecosystem Utilities
 
-* 🌐 **[GPU Overclock Database](https://linkproxy-core.github.io/gpu-overclock-database/)**
   * **Quick Lookup**: Best overclock presets for popular GPUs and PoW algorithms (PRL, QTC, RVN, ETC, IRON, XEL, etc.).
   * **Multi-Platform Conversion**: Automatic memory clock offset conversion for Windows MSI Afterburner (prevents driver crashes) and one-click `--cclock / --mclock / --pl` miner launch arguments.
   * **Continuous Updates**: Automatically synchronized with latest algorithms and GPU benchmarks.
@@ -190,7 +187,7 @@ LinkProxy is benchmarked and verified against top mining pools globally for zero
 ## Community & Support
 
 - **Telegram Group**: [https://t.me/+fKG-u6OEDexlMDIx](https://t.me/+fKG-u6OEDexlMDIx)
-- **Online Documentation**: [https://linkproxy-core.github.io/linkproxy/#/en/](https://linkproxy-core.github.io/linkproxy/#/en/)
+- **Online Documentation**: [https://linkproxy-net.github.io/linkproxy/#/en/](https://linkproxy-net.github.io/linkproxy/#/en/)
 - **Bug Reports & Feedback**: Please submit via GitHub Issues.
 
 ---

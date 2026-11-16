@@ -1,6 +1,6 @@
 [Unit]
 Description=LinkProxy Stratum / EthProxy High Performance Mining Gateway
-Documentation=https://linkproxy-core.github.io/linkproxy/
+Documentation=https://linkproxy-net.github.io/linkproxy/
 After=network.target network-online.target
 Wants=network-online.target
 

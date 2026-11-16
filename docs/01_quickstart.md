@@ -21,7 +21,7 @@
 支持 Ubuntu、Debian、CentOS、Rocky Linux、AlmaLinux 等主流 64 位发行版：
 
 ```bash
-curl -fsSL https://github.com/LinkProxy-Core/linkproxy/releases/latest/download/install.sh | sudo bash
+curl -fsSL https://github.com/linkproxy-net/linkproxy/releases/latest/download/install.sh | sudo bash
 ```
 
 安装完成后，终端将显示管理地址与初始凭据：

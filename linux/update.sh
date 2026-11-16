@@ -8,7 +8,7 @@ set -euo pipefail
 WORK_DIR="/root/linkproxy"
 SERVICE_NAME="linkproxy"
 BINARY_NAME="linkproxy-linux-amd64"
-GITHUB_REPO="LinkProxy-Core/linkproxy"
+GITHUB_REPO="linkproxy-net/linkproxy"
 
 echo "======================================================"
 echo "   LinkProxy 独立检查与一键升级"
