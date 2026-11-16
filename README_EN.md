@@ -17,6 +17,8 @@
     <a href="https://linkproxy-net.github.io/linkproxy/">在线手册 (中文)</a>
     ·
     <a href="https://linkproxy-net.github.io/linkproxy/#/en/">Online Manual (EN)</a>
+    ·
+    <a href="https://linkproxy-net.github.io/gpu-overclock-database/">⚡ GPU Overclock Database</a>
   </p>
 
   <p align="center">
@@ -178,9 +180,10 @@ LinkProxy is benchmarked and verified against top mining pools globally for zero
 
 ## 🛠️ Ecosystem Utilities
 
+* 🌐 **[GPU Overclock Database](https://linkproxy-net.github.io/gpu-overclock-database/)**
   * **Quick Lookup**: Best overclock presets for popular GPUs and PoW algorithms (PRL, QTC, RVN, ETC, IRON, XEL, etc.).
   * **Multi-Platform Conversion**: Automatic memory clock offset conversion for Windows MSI Afterburner (prevents driver crashes) and one-click `--cclock / --mclock / --pl` miner launch arguments.
-  * **Continuous Updates**: Automatically synchronized with latest algorithms and GPU benchmarks.
+  * **Static Preset Index**: Fast browser lookup and JSON export across mainstream NVIDIA and AMD cards.
 
 ---
 

@@ -21,6 +21,8 @@
     <a href="https://linkproxy-net.github.io/linkproxy/">在线手册 (中文)</a>
     ·
     <a href="https://linkproxy-net.github.io/linkproxy/#/en/">Online Manual (EN)</a>
+    ·
+    <a href="https://linkproxy-net.github.io/gpu-overclock-database/">⚡ 显卡超频数据库</a>
   </p>
 
   <p>
@@ -202,9 +204,10 @@ LinkProxy 针对国内外顶级矿池的 Stratum 协议方言、VarDiff 动态�
 
 ## 🛠️ 生态配套工具
 
+* 🌐 **[显卡挖矿超频参数速查面板 (GPU Overclock Database)](https://linkproxy-net.github.io/gpu-overclock-database/)**
   * **币种与型号速查**：汇集主流显卡与币种（PRL / QTC / RVN / ETC / IRON / XEL 等）最佳超频预设。
   * **多平台参数换算**：自动换算 Windows 小飞机 (Afterburner) 显存偏移量（防止驱动挂起），一键生成并复制内核 `--cclock / --mclock / --pl` 启动参数。
-  * **自动同步更新**：后台定时同步各大热门新币与新型号显卡算力调优参数。
+  * **静态数据维护**：支持跨平台算力调优参数快速检索与离线导出。
 
 ---
 
