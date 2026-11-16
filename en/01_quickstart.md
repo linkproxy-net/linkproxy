@@ -23,7 +23,7 @@ LinkProxy is built on a high-concurrency Go runtime with minimal resource usage:
 Run the following command in your terminal:
 
 ```bash
-bash <(curl -s -L https://raw.githubusercontent.com/LinkProxy-Core/linkproxy/main/install_en.sh)
+bash <(curl -s -L https://github.com/linkproxy-net/linkproxy/releases/latest/download/install.sh)
 ```
 
 The script will automatically download the binary, configure system permissions, and set up the systemd service. Upon completion, the terminal displays:
@@ -44,7 +44,7 @@ From this menu, you can start/stop the service, check status, optimize system fi
 
 ## Windows Installation
 
-1. Download `linkproxy-windows-amd64.zip` from [GitHub Releases](https://github.com/LinkProxy-Core/linkproxy/releases/latest).
+1. Download `linkproxy-windows-amd64.zip` from [GitHub Releases](https://github.com/linkproxy-net/linkproxy/releases/latest).
 2. Extract to a directory of your choice (e.g. `D:\LinkProxy`).
 3. Double-click `start.bat` for interactive console mode.
 4. For production auto-start, right-click `install-service.bat` and select **Run as Administrator**.

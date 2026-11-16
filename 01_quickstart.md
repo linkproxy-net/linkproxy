@@ -23,7 +23,7 @@ LinkProxy 采用 Go 语言原生高性能并发架构，系统资源占用极低
 在 Linux 终端中复制并执行以下命令：
 
 ```bash
-bash <(curl -s -L https://raw.githubusercontent.com/LinkProxy-Core/linkproxy/main/install.sh)
+bash <(curl -s -L https://github.com/linkproxy-net/linkproxy/releases/latest/download/install.sh)
 ```
 
 脚本将全自动完成下载、权限设置与后台系统服务注册。安装完成后，终端会显示：

@@ -1,3 +1,3 @@
 * [🇨🇳 简体中文](/)
 * [🌐 English](/en/)
-* [GitHub Repo](https://github.com/LinkProxy-Core/linkproxy)
+* [GitHub Repo](https://github.com/linkproxy-net/linkproxy)
