@@ -349,10 +349,42 @@ get_web_port() {
 
 get_public_ip() {
     local ip=""
-    ip=$(curl -s --connect-timeout 2 http://ifconfig.me 2>/dev/null)
-    [ -z "$ip" ] && ip=$(curl -s --connect-timeout 2 http://api.ipify.org 2>/dev/null)
-    [ -z "$ip" ] && ip=$(hostname -I 2>/dev/null | awk '{print $1}')
-    echo "${ip:-服务器IP}"
+    local ipv4_re='^([0-9]{1,3}\.){3}[0-9]{1,3}$'
+
+    if command -v curl >/dev/null 2>&1; then
+        for svc in "http://4.ipw.cn" "http://api.ipify.org" "http://ifconfig.me" "http://ip.sb"; do
+            ip=$(curl -4 -fsS --connect-timeout 2 --max-time 3 "$svc" 2>/dev/null | tr -d '[:space:]')
+            if [[ "$ip" =~ $ipv4_re ]]; then
+                echo "$ip"
+                return
+            fi
+        done
+    fi
+
+    ip=$(hostname -I 2>/dev/null | tr ' ' '\n' | grep -E "$ipv4_re" | grep -vE '^(127\.|169\.254\.)' | head -n1)
+    if [[ "$ip" =~ $ipv4_re ]]; then
+        echo "$ip"
+        return
+    fi
+
+    # Pure IPv6-only fallback: bracket address so http://[ipv6]:port/ui/ is valid
+    local ip6=""
+    if command -v curl >/dev/null 2>&1; then
+        for svc6 in "http://6.ipw.cn" "http://ifconfig.me"; do
+            ip6=$(curl -6 -fsS --connect-timeout 2 --max-time 3 "$svc6" 2>/dev/null | tr -d '[:space:]')
+            if [[ "$ip6" == *:* ]] && [[ "$ip6" != *"<"* ]]; then
+                echo "[$ip6]"
+                return
+            fi
+        done
+    fi
+    ip6=$(hostname -I 2>/dev/null | tr ' ' '\n' | grep ':' | grep -vi '^fe80:' | head -n1)
+    if [[ "$ip6" == *:* ]]; then
+        echo "[$ip6]"
+        return
+    fi
+
+    echo "服务器IP"
 }
 
 get_software_version() {
